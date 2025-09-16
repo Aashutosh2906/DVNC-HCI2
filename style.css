@@ -65,22 +65,21 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--dvnc-background);
     color: var(--dvnc-text-primary);
-    min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     position: relative;
 }
 
-/* Vitruvian Canvas Background */
-#vitruvianCanvas {
+/* Neural Network Canvas Background */
+#neuralCanvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
-    opacity: 0.03;
     pointer-events: none;
 }
 
@@ -186,7 +185,6 @@ body {
     gap: 12px;
 }
 
-.transparency-toggle,
 .new-chat-btn {
     display: flex;
     align-items: center;
@@ -202,7 +200,6 @@ body {
     font-weight: 500;
 }
 
-.transparency-toggle:hover,
 .new-chat-btn:hover {
     background: var(--dvnc-gradient);
     border-color: transparent;
@@ -215,12 +212,13 @@ body {
 .dvnc-container {
     max-width: 1200px;
     margin: 72px auto 0;
-    padding: 24px;
-    min-height: calc(100vh - 72px);
+    padding: 20px;
+    height: calc(100vh - 72px);
     display: flex;
     flex-direction: column;
     position: relative;
     z-index: 1;
+    overflow: hidden;
 }
 
 /* Welcome State */
@@ -230,8 +228,8 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 48px 24px;
-    flex: 1;
+    padding: 20px;
+    height: 100%;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -248,9 +246,9 @@ body {
 
 /* Leonardo Visual */
 .leonardo-visual {
-    width: 140px;
-    height: 140px;
-    margin-bottom: 40px;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 24px;
     position: relative;
 }
 
@@ -313,24 +311,24 @@ body {
 
 /* Welcome Title */
 .welcome-title {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .title-main {
     display: block;
-    font-size: 56px;
+    font-size: 48px;
     font-weight: 700;
     letter-spacing: -0.03em;
     background: var(--dvnc-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .title-sub {
     display: block;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
     font-family: 'Crimson Text', serif;
     font-style: italic;
@@ -338,27 +336,27 @@ body {
 }
 
 .welcome-description {
-    font-size: 16px;
+    font-size: 15px;
     color: var(--dvnc-text-secondary);
-    max-width: 600px;
-    margin-bottom: 48px;
-    line-height: 1.7;
+    max-width: 500px;
+    margin-bottom: 32px;
+    line-height: 1.6;
 }
 
 /* Prompt Grid */
 .prompt-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
     width: 100%;
-    max-width: 1000px;
+    max-width: 900px;
 }
 
 .prompt-card {
     background: var(--dvnc-surface);
     border: 1px solid var(--dvnc-border);
     border-radius: var(--radius-lg);
-    padding: 20px;
+    padding: 16px;
     cursor: pointer;
     transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -691,19 +689,6 @@ body {
     position: relative;
 }
 
-.action-btn.attach {
-    background: var(--dvnc-surface);
-    border: 1px solid var(--dvnc-border);
-    color: var(--dvnc-text-secondary);
-}
-
-.action-btn.attach:hover {
-    background: var(--dvnc-background);
-    border-color: var(--dvnc-primary);
-    color: var(--dvnc-primary);
-    transform: translateY(-2px);
-}
-
 .action-btn.send {
     background: var(--dvnc-gradient);
     color: white;
@@ -808,12 +793,10 @@ body {
         gap: 8px;
     }
     
-    .transparency-toggle span,
     .new-chat-btn span {
         display: none;
     }
     
-    .transparency-toggle,
     .new-chat-btn {
         padding: 10px;
     }
