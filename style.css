@@ -1,12 +1,12 @@
 /* DVNC.AI - Leonardo's Intelligence Design System */
 
 :root {
-    /* Professional Color Palette - Inspired by Leonardo's manuscripts */
-    --dvnc-primary: #2C3E50;        /* Deep slate blue */
-    --dvnc-primary-light: #34495E;   /* Lighter slate */
-    --dvnc-accent: #E74C3C;          /* Renaissance red */
-    --dvnc-accent-alt: #3498DB;      /* Sky blue */
-    --dvnc-gold: #F39C12;            /* Golden ratio gold */
+    /* Professional Color Palette */
+    --dvnc-primary: #2C3E50;
+    --dvnc-primary-light: #34495E;
+    --dvnc-accent: #E74C3C;
+    --dvnc-accent-alt: #3498DB;
+    --dvnc-gold: #F39C12;
     --dvnc-surface: #FFFFFF;
     --dvnc-background: #F8F9FA;
     --dvnc-elevated: rgba(255, 255, 255, 0.95);
@@ -31,7 +31,7 @@
     --transition-base: 300ms;
     --transition-slow: 500ms;
     
-    /* Border Radius - Soft corners */
+    /* Border Radius */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -72,24 +72,13 @@ body {
     position: relative;
 }
 
-/* Neural Network Canvas Background */
-#neuralCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-}
-
 /* Professional Header */
 .dvnc-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 72px;
+    height: 64px;
     background: var(--dvnc-elevated);
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
@@ -116,8 +105,8 @@ body {
 }
 
 .agent-avatar {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     position: relative;
 }
 
@@ -154,8 +143,8 @@ body {
 }
 
 .avatar-core svg {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     color: white;
 }
 
@@ -165,14 +154,14 @@ body {
 }
 
 .agent-name {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--dvnc-text-primary);
     letter-spacing: -0.02em;
 }
 
 .agent-tagline {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--dvnc-text-secondary);
     font-style: italic;
     font-family: 'Crimson Text', serif;
@@ -189,11 +178,11 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 8px 14px;
     background: var(--dvnc-surface);
     border: 1px solid var(--dvnc-border);
     border-radius: var(--radius-md);
-    font-size: 14px;
+    font-size: 13px;
     color: var(--dvnc-text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast) ease;
@@ -211,9 +200,9 @@ body {
 /* Main Container */
 .dvnc-container {
     max-width: 1200px;
-    margin: 72px auto 0;
-    padding: 20px;
-    height: calc(100vh - 72px);
+    margin: 64px auto 0;
+    padding: 16px;
+    height: calc(100vh - 64px);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -228,107 +217,58 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 20px;
+    padding: 16px;
     height: 100%;
-    animation: fadeInUp 0.8s ease-out;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Leonardo Visual */
-.leonardo-visual {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 24px;
-    position: relative;
-}
-
-.visual-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.orbital-ring {
-    position: absolute;
-    border: 1px solid var(--dvnc-primary);
-    border-radius: 50%;
-    opacity: 0.15;
-    animation: orbital-rotation 30s linear infinite;
-}
-
-.orbital-ring:nth-child(1) {
-    inset: 0;
-}
-
-.orbital-ring:nth-child(2) {
-    inset: 15px;
-    animation-duration: 25s;
-    animation-direction: reverse;
-}
-
-.orbital-ring:nth-child(3) {
-    inset: 30px;
-    animation-duration: 20s;
-}
-
-@keyframes orbital-rotation {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.visual-core {
-    position: absolute;
-    inset: 40px;
-    background: var(--dvnc-gradient);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-lg);
-    animation: core-float 6s ease-in-out infinite;
-}
-
-@keyframes core-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-}
-
-.visual-core svg {
-    width: 36px;
-    height: 36px;
-    color: white;
-}
-
-/* Welcome Title */
+/* Welcome Title with Animation */
 .welcome-title {
     margin-bottom: 16px;
 }
 
 .title-main {
     display: block;
-    font-size: 48px;
+    font-size: 56px;
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     background: var(--dvnc-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+/* Letter animation */
+.title-main .letter,
+.title-main .dot {
+    display: inline-block;
+    animation: letter-float 4s ease-in-out infinite;
+}
+
+.title-main .letter:nth-child(1) { animation-delay: 0s; }
+.title-main .letter:nth-child(2) { animation-delay: 0.1s; }
+.title-main .letter:nth-child(3) { animation-delay: 0.2s; }
+.title-main .letter:nth-child(4) { animation-delay: 0.3s; }
+.title-main .dot { animation-delay: 0.4s; }
+.title-main .letter:nth-child(6) { animation-delay: 0.5s; }
+.title-main .letter:nth-child(7) { animation-delay: 0.6s; }
+
+@keyframes letter-float {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    25% {
+        transform: translateY(-3px) scale(1.02);
+    }
+    75% {
+        transform: translateY(2px) scale(0.98);
+    }
 }
 
 .title-sub {
     display: block;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 400;
     font-family: 'Crimson Text', serif;
     font-style: italic;
@@ -336,27 +276,27 @@ body {
 }
 
 .welcome-description {
-    font-size: 15px;
+    font-size: 14px;
     color: var(--dvnc-text-secondary);
     max-width: 500px;
-    margin-bottom: 32px;
-    line-height: 1.6;
+    margin-bottom: 28px;
+    line-height: 1.5;
 }
 
 /* Prompt Grid */
 .prompt-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 14px;
     width: 100%;
-    max-width: 900px;
+    max-width: 850px;
 }
 
 .prompt-card {
     background: var(--dvnc-surface);
     border: 1px solid var(--dvnc-border);
     border-radius: var(--radius-lg);
-    padding: 16px;
+    padding: 14px;
     cursor: pointer;
     transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -387,33 +327,33 @@ body {
 }
 
 .prompt-icon {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     background: var(--dvnc-gradient);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .prompt-icon svg {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     color: white;
 }
 
 .prompt-content h3 {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: var(--dvnc-text-primary);
 }
 
 .prompt-content p {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--dvnc-text-secondary);
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 /* Conversation Area */
@@ -421,7 +361,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 220px);
+    max-height: calc(100vh - 200px);
 }
 
 .message-thread {
@@ -705,40 +645,6 @@ body {
     height: 22px;
 }
 
-/* Context Bar */
-.context-bar {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--dvnc-border-light);
-}
-
-.context-label {
-    font-size: 12px;
-    color: var(--dvnc-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.context-items {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.context-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: var(--dvnc-background);
-    border: 1px solid var(--dvnc-border-light);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    color: var(--dvnc-text-secondary);
-}
-
 /* Sources Panel */
 .sources-panel {
     position: fixed;
@@ -787,10 +693,6 @@ body {
     
     .message-wrapper {
         max-width: 85%;
-    }
-    
-    .header-controls {
-        gap: 8px;
     }
     
     .new-chat-btn span {
