@@ -231,26 +231,30 @@ body {
     font-size: 56px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    background: var(--dvnc-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     margin-bottom: 8px;
     position: relative;
+    color: var(--dvnc-primary); /* Solid color fallback */
 }
 
-/* Letter animation */
+/* Letter animation with solid colors */
 .title-main .letter,
 .title-main .dot {
     display: inline-block;
     animation: letter-float 4s ease-in-out infinite;
+    color: var(--dvnc-primary);
+    transition: color 0.3s ease;
+}
+
+.title-main .letter:hover,
+.title-main .dot:hover {
+    color: var(--dvnc-accent-alt);
 }
 
 .title-main .letter:nth-child(1) { animation-delay: 0s; }
 .title-main .letter:nth-child(2) { animation-delay: 0.1s; }
 .title-main .letter:nth-child(3) { animation-delay: 0.2s; }
 .title-main .letter:nth-child(4) { animation-delay: 0.3s; }
-.title-main .dot { animation-delay: 0.4s; }
+.title-main .dot { animation-delay: 0.4s; color: var(--dvnc-gold); }
 .title-main .letter:nth-child(6) { animation-delay: 0.5s; }
 .title-main .letter:nth-child(7) { animation-delay: 0.6s; }
 
@@ -265,7 +269,6 @@ body {
         transform: translateY(2px) scale(0.98);
     }
 }
-
 .title-sub {
     display: block;
     font-size: 15px;
