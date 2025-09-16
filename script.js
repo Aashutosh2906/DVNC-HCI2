@@ -4,7 +4,7 @@ class DVNCAgent {
     constructor() {
         this.state = {
             conversationActive: false,
-            showThinkingProcess: false,
+            showThinkingProcess: true,
             memoryItems: [],
             contextItems: []
         };
@@ -13,7 +13,8 @@ class DVNCAgent {
         this.canvas = null;
         this.ctx = null;
         this.animationId = null;
-        this.particles = [];
+        this.neurons = [];
+        this.connections = [];
         
         // Leonardo's knowledge domains
         this.leonardoResponses = {
@@ -22,8 +23,6 @@ class DVNCAgent {
             biomechanical: "Leonardo's anatomical studies reveal that human joints operate through an elegant system of levers and pulleys. For your exoskeleton design, I suggest mimicking the natural antagonistic muscle pairs - particularly the biceps-triceps relationship documented in his Windsor anatomical manuscripts. Using tensioned cables running through guides at joint fulcrums can provide both power amplification and natural movement patterns. The key insight from folio 19037r: force multiplication occurs when the artificial 'tendons' attach further from the joint center than natural ones. Shall we explore the load distribution across multiple joints?",
             
             biomedical: "Leonardo's studies of blood flow in the Codex Leicester demonstrate his understanding of circulatory dynamics centuries before Harvey. For your wearable device, consider his observation that blood flow creates specific pressure patterns at arterial branches. Modern piezoelectric sensors placed at these bifurcation points - wrist, carotid, and temporal arteries - can capture rich cardiovascular data. Leonardo's drawings in RL 19073v-19074r show the heart's spiral muscle structure, suggesting rotational flow patterns we can now measure. Would you like specifics on sensor placement or data interpretation algorithms?",
-            
-            structural: "Leonardo understood that nature achieves maximum strength with minimum material - his studies of bird bones in Codex on Flight reveal hollow structures with internal struts. For your tensegrity bridge, combine this principle with his force diagram methods from Codex Madrid I. Continuous tension elements (cables) and discontinuous compression elements (struts) create a self-stabilizing structure. Using bamboo for compression members and hemp cables for tension follows his preference for organic materials. Reference his Codex Arundel 263 for geometric proportions. Should we calculate the optimal strut-to-cable ratios?",
             
             general: "Your inquiry touches on the intersection of multiple disciplines - precisely where Leonardo's genius thrived. He saw no boundaries between art, science, and engineering. Let me analyze your challenge through his methodology: First, careful observation of natural phenomena; Second, mathematical analysis of underlying principles; Third, innovative mechanical solutions; Fourth, aesthetic refinement. Which aspect would you like to explore first? I can reference specific codices and manuscripts relevant to your particular challenge."
         };
@@ -35,8 +34,8 @@ class DVNCAgent {
         document.addEventListener('DOMContentLoaded', () => {
             this.initializeElements();
             this.attachEventListeners();
-            this.initializeCanvas();
-            this.animateBackground();
+            this.initializeNeuralNetwork();
+            this.animateNeuralNetwork();
             this.initializeTextareaResize();
         });
     }
@@ -48,8 +47,6 @@ class DVNCAgent {
             messageThread: document.getElementById('messageThread'),
             dvncInput: document.getElementById('dvncInput'),
             sendBtn: document.getElementById('sendBtn'),
-            attachBtn: document.getElementById('attachBtn'),
-            transparencyBtn: document.getElementById('transparencyBtn'),
             newChatBtn: document.getElementById('newChatBtn'),
             thinkingProcess: document.getElementById('thinkingProcess'),
             thinkingSteps: document.getElementById('thinkingSteps'),
@@ -81,44 +78,62 @@ class DVNCAgent {
             });
         });
         
-        // Transparency toggle
-        this.elements.transparencyBtn?.addEventListener('click', () => {
-            this.state.showThinkingProcess = !this.state.showThinkingProcess;
-            this.elements.transparencyBtn.querySelector('span').textContent = 
-                this.state.showThinkingProcess ? 'Hide Process' : 'Show Process';
-        });
-        
         // New chat button
         this.elements.newChatBtn?.addEventListener('click', () => {
             this.resetToHome();
         });
-        
-        // Attach button
-        this.elements.attachBtn?.addEventListener('click', () => {
-            this.showContextBar();
-        });
     }
     
-    initializeCanvas() {
-        this.canvas = document.getElementById('vitruvianCanvas');
+    initializeNeuralNetwork() {
+        this.canvas = document.getElementById('neuralCanvas');
         if (!this.canvas) return;
         
         this.ctx = this.canvas.getContext('2d');
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
-        // Create geometric particles inspired by Leonardo's drawings
-        for (let i = 0; i < 15; i++) {
-            this.particles.push({
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                size: Math.random() * 3 + 1,
-                speedX: (Math.random() - 0.5) * 0.3,
-                speedY: (Math.random() - 0.5) * 0.3,
-                opacity: Math.random() * 0.3 + 0.1,
-                connections: []
-            });
-        }
+        // Create neural network nodes
+        const layers = [3, 5, 4, 3]; // Network structure
+        const layerSpacing = this.canvas.width / (layers.length + 1);
+        
+        layers.forEach((nodeCount, layerIndex) => {
+            const x = layerSpacing * (layerIndex + 1);
+            const nodeSpacing = this.canvas.height / (nodeCount + 1);
+            
+            for (let i = 0; i < nodeCount; i++) {
+                const y = nodeSpacing * (i + 1);
+                this.neurons.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 0.2,
+                    vy: (Math.random() - 0.5) * 0.2,
+                    layer: layerIndex,
+                    activation: Math.random(),
+                    pulsePhase: Math.random() * Math.PI * 2
+                });
+            }
+        });
+        
+        // Create connections between layers
+        layers.forEach((_, layerIndex) => {
+            if (layerIndex < layers.length - 1) {
+                const currentLayer = this.neurons.filter(n => n.layer === layerIndex);
+                const nextLayer = this.neurons.filter(n => n.layer === layerIndex + 1);
+                
+                currentLayer.forEach(neuron1 => {
+                    nextLayer.forEach(neuron2 => {
+                        if (Math.random() > 0.3) { // 70% connection probability
+                            this.connections.push({
+                                from: neuron1,
+                                to: neuron2,
+                                strength: Math.random() * 0.5 + 0.2,
+                                pulseOffset: Math.random() * Math.PI * 2
+                            });
+                        }
+                    });
+                });
+            }
+        });
     }
     
     resizeCanvas() {
@@ -127,50 +142,83 @@ class DVNCAgent {
         this.canvas.height = window.innerHeight;
     }
     
-    animateBackground() {
+    animateNeuralNetwork() {
         if (!this.ctx || !this.canvas) return;
         
-        // Clear canvas with subtle fade
-        this.ctx.fillStyle = 'rgba(248, 249, 250, 0.1)';
+        // Clear canvas
+        this.ctx.fillStyle = 'rgba(248, 249, 250, 0.05)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Update and draw particles
-        this.particles.forEach((particle, index) => {
-            // Update position
-            particle.x += particle.speedX;
-            particle.y += particle.speedY;
+        // Update neuron activations
+        this.neurons.forEach(neuron => {
+            neuron.pulsePhase += 0.02;
+            neuron.activation = Math.sin(neuron.pulsePhase) * 0.5 + 0.5;
             
-            // Wrap around edges
-            if (particle.x < 0) particle.x = this.canvas.width;
-            if (particle.x > this.canvas.width) particle.x = 0;
-            if (particle.y < 0) particle.y = this.canvas.height;
-            if (particle.y > this.canvas.height) particle.y = 0;
+            // Slight movement
+            neuron.x += neuron.vx;
+            neuron.y += neuron.vy;
             
-            // Draw connections (like Leonardo's geometric studies)
-            this.particles.slice(index + 1).forEach(other => {
-                const dx = other.x - particle.x;
-                const dy = other.y - particle.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < 200) {
-                    const opacity = (1 - distance / 200) * 0.2;
-                    this.ctx.strokeStyle = `rgba(44, 62, 80, ${opacity})`;
-                    this.ctx.lineWidth = 0.5;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(particle.x, particle.y);
-                    this.ctx.lineTo(other.x, other.y);
-                    this.ctx.stroke();
-                }
-            });
+            // Boundary check with elastic collision
+            if (neuron.x < 50 || neuron.x > this.canvas.width - 50) neuron.vx *= -1;
+            if (neuron.y < 50 || neuron.y > this.canvas.height - 50) neuron.vy *= -1;
             
-            // Draw particle
-            this.ctx.fillStyle = `rgba(44, 62, 80, ${particle.opacity})`;
+            // Damping
+            neuron.vx *= 0.999;
+            neuron.vy *= 0.999;
+        });
+        
+        // Draw connections with pulsing effect
+        this.connections.forEach(conn => {
+            const pulse = Math.sin(Date.now() * 0.001 + conn.pulseOffset) * 0.5 + 0.5;
+            const opacity = conn.strength * pulse * 0.3;
+            
+            // Create gradient for connection
+            const gradient = this.ctx.createLinearGradient(
+                conn.from.x, conn.from.y,
+                conn.to.x, conn.to.y
+            );
+            gradient.addColorStop(0, `rgba(52, 152, 219, ${opacity * conn.from.activation})`);
+            gradient.addColorStop(1, `rgba(231, 76, 60, ${opacity * conn.to.activation})`);
+            
+            this.ctx.strokeStyle = gradient;
+            this.ctx.lineWidth = 0.5 + pulse * 0.5;
             this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            this.ctx.moveTo(conn.from.x, conn.from.y);
+            this.ctx.lineTo(conn.to.x, conn.to.y);
+            this.ctx.stroke();
+        });
+        
+        // Draw neurons with glow effect
+        this.neurons.forEach(neuron => {
+            const size = 3 + neuron.activation * 3;
+            
+            // Outer glow
+            const glow = this.ctx.createRadialGradient(
+                neuron.x, neuron.y, 0,
+                neuron.x, neuron.y, size * 3
+            );
+            glow.addColorStop(0, `rgba(243, 156, 18, ${neuron.activation * 0.3})`);
+            glow.addColorStop(1, 'transparent');
+            
+            this.ctx.fillStyle = glow;
+            this.ctx.beginPath();
+            this.ctx.arc(neuron.x, neuron.y, size * 3, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Core
+            this.ctx.fillStyle = `rgba(44, 62, 80, ${0.6 + neuron.activation * 0.4})`;
+            this.ctx.beginPath();
+            this.ctx.arc(neuron.x, neuron.y, size, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Inner bright spot
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${neuron.activation * 0.8})`;
+            this.ctx.beginPath();
+            this.ctx.arc(neuron.x, neuron.y, size * 0.3, 0, Math.PI * 2);
             this.ctx.fill();
         });
         
-        this.animationId = requestAnimationFrame(() => this.animateBackground());
+        this.animationId = requestAnimationFrame(() => this.animateNeuralNetwork());
     }
     
     initializeTextareaResize() {
@@ -195,8 +243,6 @@ class DVNCAgent {
             responseType = 'biomechanical';
         } else if (prompt.includes('circulatory') || prompt.includes('wearable')) {
             responseType = 'biomedical';
-        } else if (prompt.includes('bridge') || prompt.includes('tensegrity')) {
-            responseType = 'structural';
         }
         
         this.processAgentResponse(responseType);
@@ -227,8 +273,7 @@ class DVNCAgent {
         const keywords = {
             hydraulic: ['water', 'pump', 'fluid', 'flow', 'hydraulic'],
             biomechanical: ['exoskeleton', 'joint', 'muscle', 'movement', 'biomechanical'],
-            biomedical: ['circulatory', 'heart', 'blood', 'medical', 'wearable'],
-            structural: ['bridge', 'structure', 'tensegrity', 'architecture', 'building']
+            biomedical: ['circulatory', 'heart', 'blood', 'medical', 'wearable']
         };
         
         for (const [type, words] of Object.entries(keywords)) {
@@ -364,32 +409,6 @@ class DVNCAgent {
         }
         
         this.scrollToBottom();
-    }
-    
-    showContextBar() {
-        this.elements.contextBar.style.display = 'block';
-        
-        // Add example Leonardo manuscripts as context
-        const manuscripts = [
-            'Codex Atlanticus - Folio 812',
-            'Windsor RL 19037r - Anatomy',
-            'Codex Leicester - Water Studies'
-        ];
-        
-        manuscripts.forEach(manuscript => {
-            const chip = document.createElement('div');
-            chip.className = 'context-chip';
-            chip.innerHTML = `
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <path d="M14 2v6h6"/>
-                </svg>
-                <span>${manuscript}</span>
-            `;
-            this.elements.contextItems.appendChild(chip);
-        });
-        
-        this.state.contextItems.push(...manuscripts);
     }
     
     updateSourcesCount() {
