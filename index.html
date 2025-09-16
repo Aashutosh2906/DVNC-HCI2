@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Neural Network Background Canvas -->
-    <canvas id="neuralCanvas"></canvas>
-    
     <!-- Professional Header -->
     <header class="dvnc-header">
         <div class="header-content">
@@ -18,7 +15,6 @@
                 <div class="agent-avatar">
                     <div class="avatar-glow"></div>
                     <div class="avatar-core">
-                        <!-- Vitruvian-inspired geometric logo -->
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10"/>
                             <path d="M12 2v20M2 12h20"/>
@@ -48,24 +44,16 @@
     <div class="dvnc-container">
         <!-- Welcome State -->
         <div class="welcome-state" id="welcomeSection">
-            <div class="leonardo-visual">
-                <div class="visual-container">
-                    <div class="orbital-ring"></div>
-                    <div class="orbital-ring"></div>
-                    <div class="orbital-ring"></div>
-                    <div class="visual-core">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 2v20M2 12h20"/>
-                            <path d="M12 7l5 5-5 5-5-5z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            
             <h1 class="welcome-title">
-                <span class="title-main">DVNC.AI</span>
+                <span class="title-main">
+                    <span class="letter">D</span>
+                    <span class="letter">V</span>
+                    <span class="letter">N</span>
+                    <span class="letter">C</span>
+                    <span class="dot">.</span>
+                    <span class="letter">A</span>
+                    <span class="letter">I</span>
+                </span>
                 <span class="title-sub">Leonardo's Intelligence. Reimagined for the 21st Century.</span>
             </h1>
             
@@ -73,7 +61,7 @@
                 Bridging art, science, and engineering through polymathic intelligence.
             </p>
             
-            <!-- Leonardo-inspired Prompt Cards - Only 3 -->
+            <!-- Leonardo-inspired Prompt Cards -->
             <div class="prompt-grid">
                 <div class="prompt-card" data-prompt="Develop a portable water pump system inspired by fluid dynamics principles">
                     <div class="prompt-icon">
@@ -159,18 +147,10 @@
                     </button>
                 </div>
             </div>
-            
-            <!-- Context Bar (hidden by default) -->
-            <div class="context-bar" id="contextBar" style="display: none;">
-                <span class="context-label">Reference Materials:</span>
-                <div class="context-items" id="contextItems">
-                    <!-- Context chips will appear here -->
-                </div>
-            </div>
         </div>
     </div>
     
-    <!-- Memory & Sources Panel -->
+    <!-- Sources Panel -->
     <div class="sources-panel" id="sourcesPanel" style="display: none;">
         <div class="sources-header">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
