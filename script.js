@@ -10,11 +10,6 @@ class DVNCAgent {
         };
         
         this.elements = {};
-        this.canvas = null;
-        this.ctx = null;
-        this.animationId = null;
-        this.neurons = [];
-        this.connections = [];
         
         // Leonardo's knowledge domains
         this.leonardoResponses = {
@@ -34,8 +29,6 @@ class DVNCAgent {
         document.addEventListener('DOMContentLoaded', () => {
             this.initializeElements();
             this.attachEventListeners();
-            this.initializeNeuralNetwork();
-            this.animateNeuralNetwork();
             this.initializeTextareaResize();
         });
     }
@@ -50,11 +43,8 @@ class DVNCAgent {
             newChatBtn: document.getElementById('newChatBtn'),
             thinkingProcess: document.getElementById('thinkingProcess'),
             thinkingSteps: document.getElementById('thinkingSteps'),
-            contextBar: document.getElementById('contextBar'),
-            contextItems: document.getElementById('contextItems'),
             sourcesPanel: document.getElementById('sourcesPanel'),
-            sourcesCount: document.getElementById('sourcesCount'),
-            inputInterface: document.getElementById('inputInterface')
+            sourcesCount: document.getElementById('sourcesCount')
         };
     }
     
@@ -82,143 +72,6 @@ class DVNCAgent {
         this.elements.newChatBtn?.addEventListener('click', () => {
             this.resetToHome();
         });
-    }
-    
-    initializeNeuralNetwork() {
-        this.canvas = document.getElementById('neuralCanvas');
-        if (!this.canvas) return;
-        
-        this.ctx = this.canvas.getContext('2d');
-        this.resizeCanvas();
-        window.addEventListener('resize', () => this.resizeCanvas());
-        
-        // Create neural network nodes
-        const layers = [3, 5, 4, 3]; // Network structure
-        const layerSpacing = this.canvas.width / (layers.length + 1);
-        
-        layers.forEach((nodeCount, layerIndex) => {
-            const x = layerSpacing * (layerIndex + 1);
-            const nodeSpacing = this.canvas.height / (nodeCount + 1);
-            
-            for (let i = 0; i < nodeCount; i++) {
-                const y = nodeSpacing * (i + 1);
-                this.neurons.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 0.2,
-                    vy: (Math.random() - 0.5) * 0.2,
-                    layer: layerIndex,
-                    activation: Math.random(),
-                    pulsePhase: Math.random() * Math.PI * 2
-                });
-            }
-        });
-        
-        // Create connections between layers
-        layers.forEach((_, layerIndex) => {
-            if (layerIndex < layers.length - 1) {
-                const currentLayer = this.neurons.filter(n => n.layer === layerIndex);
-                const nextLayer = this.neurons.filter(n => n.layer === layerIndex + 1);
-                
-                currentLayer.forEach(neuron1 => {
-                    nextLayer.forEach(neuron2 => {
-                        if (Math.random() > 0.3) { // 70% connection probability
-                            this.connections.push({
-                                from: neuron1,
-                                to: neuron2,
-                                strength: Math.random() * 0.5 + 0.2,
-                                pulseOffset: Math.random() * Math.PI * 2
-                            });
-                        }
-                    });
-                });
-            }
-        });
-    }
-    
-    resizeCanvas() {
-        if (!this.canvas) return;
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
-    
-    animateNeuralNetwork() {
-        if (!this.ctx || !this.canvas) return;
-        
-        // Clear canvas
-        this.ctx.fillStyle = 'rgba(248, 249, 250, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // Update neuron activations
-        this.neurons.forEach(neuron => {
-            neuron.pulsePhase += 0.02;
-            neuron.activation = Math.sin(neuron.pulsePhase) * 0.5 + 0.5;
-            
-            // Slight movement
-            neuron.x += neuron.vx;
-            neuron.y += neuron.vy;
-            
-            // Boundary check with elastic collision
-            if (neuron.x < 50 || neuron.x > this.canvas.width - 50) neuron.vx *= -1;
-            if (neuron.y < 50 || neuron.y > this.canvas.height - 50) neuron.vy *= -1;
-            
-            // Damping
-            neuron.vx *= 0.999;
-            neuron.vy *= 0.999;
-        });
-        
-        // Draw connections with pulsing effect
-        this.connections.forEach(conn => {
-            const pulse = Math.sin(Date.now() * 0.001 + conn.pulseOffset) * 0.5 + 0.5;
-            const opacity = conn.strength * pulse * 0.3;
-            
-            // Create gradient for connection
-            const gradient = this.ctx.createLinearGradient(
-                conn.from.x, conn.from.y,
-                conn.to.x, conn.to.y
-            );
-            gradient.addColorStop(0, `rgba(52, 152, 219, ${opacity * conn.from.activation})`);
-            gradient.addColorStop(1, `rgba(231, 76, 60, ${opacity * conn.to.activation})`);
-            
-            this.ctx.strokeStyle = gradient;
-            this.ctx.lineWidth = 0.5 + pulse * 0.5;
-            this.ctx.beginPath();
-            this.ctx.moveTo(conn.from.x, conn.from.y);
-            this.ctx.lineTo(conn.to.x, conn.to.y);
-            this.ctx.stroke();
-        });
-        
-        // Draw neurons with glow effect
-        this.neurons.forEach(neuron => {
-            const size = 3 + neuron.activation * 3;
-            
-            // Outer glow
-            const glow = this.ctx.createRadialGradient(
-                neuron.x, neuron.y, 0,
-                neuron.x, neuron.y, size * 3
-            );
-            glow.addColorStop(0, `rgba(243, 156, 18, ${neuron.activation * 0.3})`);
-            glow.addColorStop(1, 'transparent');
-            
-            this.ctx.fillStyle = glow;
-            this.ctx.beginPath();
-            this.ctx.arc(neuron.x, neuron.y, size * 3, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // Core
-            this.ctx.fillStyle = `rgba(44, 62, 80, ${0.6 + neuron.activation * 0.4})`;
-            this.ctx.beginPath();
-            this.ctx.arc(neuron.x, neuron.y, size, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // Inner bright spot
-            this.ctx.fillStyle = `rgba(255, 255, 255, ${neuron.activation * 0.8})`;
-            this.ctx.beginPath();
-            this.ctx.arc(neuron.x, neuron.y, size * 0.3, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
-        
-        this.animationId = requestAnimationFrame(() => this.animateNeuralNetwork());
     }
     
     initializeTextareaResize() {
@@ -424,8 +277,6 @@ class DVNCAgent {
         this.elements.sourcesPanel.style.display = 'none';
         this.elements.messageThread.innerHTML = '';
         this.elements.dvncInput.value = '';
-        this.elements.contextBar.style.display = 'none';
-        this.elements.contextItems.innerHTML = '';
         this.state.memoryItems = [];
         this.state.contextItems = [];
     }
