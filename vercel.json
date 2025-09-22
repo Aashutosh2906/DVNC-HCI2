@@ -1,0 +1,47 @@
+// vercel.json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
+
+// requirements.txt
+Flask==2.3.3
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+// package.json (optional, for better Vercel detection)
+{
+  "name": "dvnc-ai",
+  "version": "1.0.0",
+  "description": "DVNC.AI - Leonardo's Intelligence Reimagined",
+  "scripts": {
+    "dev": "python app.py"
+  }
+}
