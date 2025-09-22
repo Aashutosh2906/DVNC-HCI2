@@ -1,4 +1,4 @@
-// DVNC.AI - Leonardo's Intelligence System
+// DVNC.AI - Leonardo's Intelligence System with Backend Integration
 
 class DVNCAgent {
     constructor() {
@@ -6,22 +6,13 @@ class DVNCAgent {
             conversationActive: false,
             showThinkingProcess: true,
             memoryItems: [],
-            contextItems: []
+            contextItems: [],
+            apiUrl: window.location.hostname === 'localhost' 
+                ? 'http://localhost:5000/api' 
+                : '/api'  // Vercel will handle the API routing
         };
         
         this.elements = {};
-        
-        // Leonardo's knowledge domains
-        this.leonardoResponses = {
-            hydraulic: "Applying Leonardo's observations on fluid dynamics: Water follows the path of least resistance, creating vortices and eddies that can be harnessed. For your portable pump system, consider implementing an Archimedean screw mechanism combined with modern materials. The spiral geometry provides continuous flow with minimal energy input, much like Leonardo's canal lock designs. I've referenced his Codex Atlanticus folios 26v-27r on hydraulic machines. Would you like me to elaborate on the pressure differential calculations or focus on the mechanical design?",
-            
-            biomechanical: "Leonardo's anatomical studies reveal that human joints operate through an elegant system of levers and pulleys. For your exoskeleton design, I suggest mimicking the natural antagonistic muscle pairs - particularly the biceps-triceps relationship documented in his Windsor anatomical manuscripts. Using tensioned cables running through guides at joint fulcrums can provide both power amplification and natural movement patterns. The key insight from folio 19037r: force multiplication occurs when the artificial 'tendons' attach further from the joint center than natural ones. Shall we explore the load distribution across multiple joints?",
-            
-            biomedical: "Leonardo's studies of blood flow in the Codex Leicester demonstrate his understanding of circulatory dynamics centuries before Harvey. For your wearable device, consider his observation that blood flow creates specific pressure patterns at arterial branches. Modern piezoelectric sensors placed at these bifurcation points - wrist, carotid, and temporal arteries - can capture rich cardiovascular data. Leonardo's drawings in RL 19073v-19074r show the heart's spiral muscle structure, suggesting rotational flow patterns we can now measure. Would you like specifics on sensor placement or data interpretation algorithms?",
-            
-            general: "Your inquiry touches on the intersection of multiple disciplines - precisely where Leonardo's genius thrived. He saw no boundaries between art, science, and engineering. Let me analyze your challenge through his methodology: First, careful observation of natural phenomena; Second, mathematical analysis of underlying principles; Third, innovative mechanical solutions; Fourth, aesthetic refinement. Which aspect would you like to explore first? I can reference specific codices and manuscripts relevant to your particular challenge."
-        };
-        
         this.init();
     }
     
@@ -30,7 +21,18 @@ class DVNCAgent {
             this.initializeElements();
             this.attachEventListeners();
             this.initializeTextareaResize();
+            this.checkBackendHealth();
         });
+    }
+    
+    async checkBackendHealth() {
+        try {
+            const response = await fetch(`${this.state.apiUrl}/health`);
+            const data = await response.json();
+            console.log('Backend status:', data.status);
+        } catch (error) {
+            console.warn('Backend not available, using frontend-only mode');
+        }
     }
     
     initializeElements() {
@@ -84,21 +86,10 @@ class DVNCAgent {
         });
     }
     
-    handlePromptCard(prompt) {
+    async handlePromptCard(prompt) {
         this.startConversation();
         this.addMessage(prompt, 'user');
-        
-        // Determine response type based on prompt
-        let responseType = 'general';
-        if (prompt.includes('water pump') || prompt.includes('fluid')) {
-            responseType = 'hydraulic';
-        } else if (prompt.includes('exoskeleton')) {
-            responseType = 'biomechanical';
-        } else if (prompt.includes('circulatory') || prompt.includes('wearable')) {
-            responseType = 'biomedical';
-        }
-        
-        this.processAgentResponse(responseType);
+        await this.processWithBackend(prompt);
     }
     
     startConversation() {
@@ -112,7 +103,7 @@ class DVNCAgent {
         }
     }
     
-    sendMessage() {
+    async sendMessage() {
         const message = this.elements.dvncInput.value.trim();
         if (!message) return;
         
@@ -121,7 +112,73 @@ class DVNCAgent {
         this.elements.dvncInput.value = '';
         this.elements.dvncInput.style.height = 'auto';
         
-        // Analyze message for Leonardo context
+        await this.processWithBackend(message);
+    }
+    
+    async processWithBackend(prompt) {
+        // Show thinking process
+        if (this.state.showThinkingProcess) {
+            await this.showThinkingSteps();
+        }
+        
+        try {
+            // Call backend API
+            const response = await fetch(`${this.state.apiUrl}/process`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Format and display the response
+                this.displayDesignResponse(data.design);
+            } else {
+                // Fallback to frontend-only response
+                this.displayFallbackResponse(prompt);
+            }
+        } catch (error) {
+            console.error('Backend error:', error);
+            // Fallback to frontend-only response
+            this.displayFallbackResponse(prompt);
+        }
+        
+        // Hide thinking process
+        if (this.elements.thinkingProcess) {
+            this.elements.thinkingProcess.style.display = 'none';
+        }
+    }
+    
+    displayDesignResponse(design) {
+        // Build comprehensive response from backend data
+        let response = `I've synthesized a design for your ${design.product_type}: **${design.name}**\n\n`;
+        response += `**Target Market:** ${design.target_market}\n`;
+        response += `**Innovation Score:** ${design.innovation_score}/10 | `;
+        response += `**Feasibility:** ${design.feasibility_score}/10 | `;
+        response += `**Viability:** ${design.viability_score}\n\n`;
+        response += `**Key Features:**\n`;
+        
+        design.features.forEach((feature, index) => {
+            response += `${index + 1}. ${feature.description}\n`;
+            response += `   *Stage:* ${feature.development_stage} - ${feature.engineering_notes}\n`;
+            response += `   *Leonardo's Insight:* ${feature.inspiration.split('||')[0]}\n\n`;
+        });
+        
+        response += `This design harmoniously blends ${design.principles.join(', ')} principles, `;
+        response += `drawing from Leonardo's methodology to create a truly innovative solution.`;
+        
+        this.addMessage(response, 'agent', design.codices);
+        
+        // Update sources count
+        this.state.memoryItems.push(`Design: ${design.name}`);
+        this.updateSourcesCount();
+    }
+    
+    displayFallbackResponse(prompt) {
+        // Use existing frontend logic as fallback
         let responseType = 'general';
         const keywords = {
             hydraulic: ['water', 'pump', 'fluid', 'flow', 'hydraulic'],
@@ -130,16 +187,30 @@ class DVNCAgent {
         };
         
         for (const [type, words] of Object.entries(keywords)) {
-            if (words.some(word => message.toLowerCase().includes(word))) {
+            if (words.some(word => prompt.toLowerCase().includes(word))) {
                 responseType = type;
                 break;
             }
         }
         
-        this.processAgentResponse(responseType);
+        const response = this.getLeonardoResponse(responseType);
+        this.addMessage(response, 'agent');
+        
+        this.state.memoryItems.push(`Analysis at ${new Date().toLocaleTimeString()}`);
+        this.updateSourcesCount();
     }
     
-    addMessage(text, sender) {
+    getLeonardoResponse(type) {
+        const responses = {
+            hydraulic: "Applying Leonardo's observations on fluid dynamics: Water follows the path of least resistance, creating vortices and eddies that can be harnessed. For your portable pump system, consider implementing an Archimedean screw mechanism combined with modern materials. The spiral geometry provides continuous flow with minimal energy input, much like Leonardo's canal lock designs.",
+            biomechanical: "Leonardo's anatomical studies reveal that human joints operate through an elegant system of levers and pulleys. For your exoskeleton design, I suggest mimicking the natural antagonistic muscle pairs - particularly the biceps-triceps relationship documented in his Windsor anatomical manuscripts.",
+            biomedical: "Leonardo's studies of blood flow in the Codex Leicester demonstrate his understanding of circulatory dynamics centuries before Harvey. For your wearable device, consider his observation that blood flow creates specific pressure patterns at arterial branches.",
+            general: "Your inquiry touches on the intersection of multiple disciplines - precisely where Leonardo's genius thrived. He saw no boundaries between art, science, and engineering. Let me analyze your challenge through his methodology."
+        };
+        return responses[type] || responses.general;
+    }
+    
+    addMessage(text, sender, codices = null) {
         const messageBlock = document.createElement('div');
         messageBlock.className = `message-block ${sender}`;
         
@@ -172,13 +243,19 @@ class DVNCAgent {
         
         const messageText = document.createElement('div');
         messageText.className = 'message-text';
-        messageText.textContent = text;
+        
+        // Parse markdown-like formatting
+        let formattedText = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br>');
+        messageText.innerHTML = formattedText;
         
         messageContent.appendChild(messageText);
         
         // Add Leonardo's sources for agent messages
         if (sender === 'agent') {
-            const sources = this.createLeonardoSources();
+            const sources = this.createLeonardoSources(codices);
             messageContent.appendChild(sources);
         }
         
@@ -190,26 +267,22 @@ class DVNCAgent {
         this.scrollToBottom();
     }
     
-    createLeonardoSources() {
+    createLeonardoSources(codices = null) {
         const sourcesDiv = document.createElement('div');
         sourcesDiv.className = 'message-sources';
         
-        const sources = [
+        // Use provided codices or generate random ones
+        const sources = codices || [
             { name: 'Codex Atlanticus', icon: '📜' },
             { name: 'Codex Leicester', icon: '📖' },
             { name: 'Windsor Manuscripts', icon: '📚' },
             { name: 'Codex Madrid I', icon: '📝' }
-        ];
-        
-        // Randomly select 2-3 sources
-        const selectedSources = sources
-            .sort(() => Math.random() - 0.5)
-            .slice(0, Math.floor(Math.random() * 2) + 2);
+        ].sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * 2) + 2);
         
         sourcesDiv.innerHTML = `
             <div class="source-label">Leonardo's References</div>
             <div class="source-items">
-                ${selectedSources.map(source => `
+                ${sources.map(source => `
                     <a href="#" class="source-chip" onclick="event.preventDefault()">
                         <span>${source.icon}</span>
                         <span>${source.name}</span>
@@ -221,40 +294,21 @@ class DVNCAgent {
         return sourcesDiv;
     }
     
-    async processAgentResponse(type) {
-        if (this.state.showThinkingProcess) {
-            await this.showThinkingSteps();
-        }
-        
-        setTimeout(() => {
-            const response = this.leonardoResponses[type] || this.leonardoResponses.general;
-            this.addMessage(response, 'agent');
-            
-            // Update sources count
-            this.state.memoryItems.push(`Analysis at ${new Date().toLocaleTimeString()}`);
-            this.updateSourcesCount();
-            
-            // Hide thinking process
-            if (this.elements.thinkingProcess) {
-                this.elements.thinkingProcess.style.display = 'none';
-            }
-        }, 1500);
-    }
-    
     async showThinkingSteps() {
         this.elements.thinkingProcess.style.display = 'block';
         this.elements.thinkingSteps.innerHTML = '';
         
         const steps = [
             '📖 Consulting Leonardo\'s codices...',
-            '🔬 Analyzing natural principles...',
-            '⚙️ Synthesizing mechanical solutions...',
-            '🎨 Applying aesthetic proportions...',
-            '💡 Formulating innovative approach...'
+            '🔬 Analyzing through Mechanics & Physics SLM...',
+            '🧬 Processing through Anatomy & Biology SLM...',
+            '🎨 Evaluating through Optics & Aesthetics SLM...',
+            '⚙️ Synthesizing via Da Vinci Abstraction Organ...',
+            '💡 Formulating innovative design solution...'
         ];
         
         for (const step of steps) {
-            await this.delay(400);
+            await this.delay(300);
             const stepDiv = document.createElement('div');
             stepDiv.className = 'thinking-step';
             stepDiv.textContent = step;
